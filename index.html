@@ -22,7 +22,6 @@
             padding: 40px 20px;
         }
 
-        /* Preview Container med rutenett for å se gjennomsiktighet */
         #preview-container {
             width: 100%;
             max-width: 800px;
@@ -41,7 +40,6 @@
             border: 2px solid #333;
         }
 
-        /* Widget CSS (Din originale stil) */
         #goal-wrapper { 
             position: relative; 
             width: 600px; 
@@ -62,7 +60,6 @@
         .dono-alert { transform: scale(1.05) !important; }
         .pink-flash { animation: pink-blink-anim 0.5s infinite; }
 
-        /* Editor Styles */
         .editor-panel {
             background: var(--panel-color);
             padding: 30px;
@@ -72,6 +69,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
+            margin-bottom: 40px;
         }
 
         .control { display: flex; flex-direction: column; gap: 5px; }
@@ -83,8 +81,6 @@
             gap: 10px;
             flex-wrap: wrap;
             margin-top: 20px;
-            border-top: 1px solid #333;
-            padding-top: 20px;
         }
 
         button {
@@ -98,11 +94,44 @@
 
         .btn-test { background: #ff69b4; color: white; }
         .btn-copy { background: #333; color: white; }
-        button:hover { opacity: 0.8; transform: translateY(-2px); }
+        .btn-manual { background: #444; color: #fff; width: 100%; margin-top: 10px; }
+
+        /* Manuelt Kodeområde */
+        .manual-section {
+            width: 100%;
+            max-width: 800px;
+            display: none; /* Skjult som standard */
+            flex-direction: column;
+            gap: 20px;
+            background: #111;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+        }
+
+        .code-box {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .code-box label { font-size: 12px; color: #ff69b4; font-weight: bold; text-transform: uppercase; }
+
+        textarea {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #222;
+            height: 150px;
+            resize: vertical;
+            font-size: 13px;
+        }
 
         .toast {
             position: fixed; bottom: 20px; background: #4CAF50; color: white;
-            padding: 10px 20px; border-radius: 5px; display: none;
+            padding: 10px 20px; border-radius: 5px; display: none; z-index: 100;
         }
     </style>
 </head>
@@ -138,50 +167,37 @@
             <button class="btn-copy" onclick="copyCSS()">Kopier CSS</button>
             <button class="btn-copy" onclick="copyJS()">Kopier JS</button>
             <button class="btn-copy" onclick="copyFIELDS()">Kopier FIELDS</button>
+            <button class="btn-manual" onclick="toggleManual()">Vis / Kopier alt manuelt</button>
+        </div>
+    </div>
+
+    <div id="manual-area" class="manual-section">
+        <h3>Manuelt kopi-område</h3>
+        <p style="font-size: 13px; color: #888;">Klikk i boksene for å markere alt.</p>
+        
+        <div class="code-box">
+            <label>HTML</label>
+            <textarea id="raw-html" readonly onclick="this.select()"></textarea>
+        </div>
+        <div class="code-box">
+            <label>CSS</label>
+            <textarea id="raw-css" readonly onclick="this.select()"></textarea>
+        </div>
+        <div class="code-box">
+            <label>JavaScript</label>
+            <textarea id="raw-js" readonly onclick="this.select()"></textarea>
+        </div>
+        <div class="code-box">
+            <label>Fields (JSON)</label>
+            <textarea id="raw-fields" readonly onclick="this.select()"></textarea>
         </div>
     </div>
 
     <div id="toast" class="toast">Kopiert til utklippstavle!</div>
 
     <script>
-        const wrapper = document.getElementById('goal-wrapper');
-        const bar = document.getElementById('bar-fill-element');
-
-        function update() {
-            document.getElementById('prev-title').innerText = document.getElementById('in-title').value;
-            document.getElementById('target-text').innerText = document.getElementById('in-target').value;
-            document.getElementById('prev-title').style.color = document.getElementById('in-title-color').value;
-            document.getElementById('prev-amount-text').style.color = document.getElementById('in-amount-color').value;
-            bar.style.backgroundColor = document.getElementById('in-bar-color').value;
-            wrapper.style.backgroundColor = `rgba(255, 192, 203, 0.15)`;
-        }
-
-        document.querySelectorAll('input').forEach(i => i.addEventListener('input', update));
-
-        function simulate() {
-            const glow = document.getElementById('in-glow-color').value;
-            wrapper.style.borderColor = glow;
-            wrapper.style.boxShadow = `0 0 40px ${glow}`;
-            wrapper.classList.add('dono-alert');
-            bar.classList.add('pink-flash');
-            setTimeout(() => {
-                wrapper.classList.remove('dono-alert');
-                bar.classList.remove('pink-flash');
-                wrapper.style.boxShadow = "none";
-                wrapper.style.borderColor = "rgba(255, 255, 255, 0.1)";
-            }, 4000);
-        }
-
-        function showToast() {
-            const t = document.getElementById('toast');
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2000);
-        }
-
-        // --- KOPIERINGSFUNKSJONER ---
-
-        function copyHTML() {
-            const code = `<div id="goal-wrapper" style="background: rgba(255, 192, 203, {{bg_opacity}});">
+        // Lagre koden i variabler for gjenbruk
+        const htmlCode = `<div id="goal-wrapper" style="background: rgba(255, 192, 203, {{bg_opacity}});">
     <div class="header-row">
         <div class="title" style="color: {{title_color}};">{{goal_title}}</div>
         <div class="amount-container" style="color: {{amount_color}};">
@@ -194,12 +210,8 @@
         <div id="bar-fill-element" class="bar-fill" style="background: {{bar_color}};"></div>
     </div>
 </div>`;
-            navigator.clipboard.writeText(code);
-            showToast();
-        }
 
-        function copyCSS() {
-            const code = `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap');
+        const cssCode = `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap');
 
 #goal-wrapper { 
     position: absolute; 
@@ -237,12 +249,8 @@
     50% { background: {{blink_color}}; } 
     100% { background: {{bar_color}}; } 
 }`;
-            navigator.clipboard.writeText(code);
-            showToast();
-        }
 
-        function copyJS() {
-            const code = `let goalTarget = 0; 
+        const jsCode = `let goalTarget = 0; 
 let currentTotal = 0;
 
 window.addEventListener('onWidgetLoad', function (obj) {
@@ -278,11 +286,13 @@ function render(isDono) {
         }, 4000);
     }
 }`;
-            navigator.clipboard.writeText(code);
-            showToast();
-        }
 
-        function copyFIELDS() {
+        // Fyll boksene med en gang
+        document.getElementById('raw-html').value = htmlCode;
+        document.getElementById('raw-css').value = cssCode;
+        document.getElementById('raw-js').value = jsCode;
+
+        function updateFieldsArea() {
             const fields = {
                 "goal_title": { "type": "text", "label": "Mål Tittel", "value": document.getElementById('in-title').value },
                 "goal_amount": { "type": "number", "label": "Mål Beløp (kr)", "value": parseInt(document.getElementById('in-target').value) },
@@ -292,9 +302,53 @@ function render(isDono) {
                 "glow_color": { "type": "colorpicker", "label": "Farge: Lys rundt (Glow)", "value": document.getElementById('in-glow-color').value },
                 "bg_opacity": { "type": "slider", "label": "Gjennomsiktighet", "value": 0.15, "min": 0, "max": 1, "step": 0.01 }
             };
-            navigator.clipboard.writeText(JSON.stringify(fields, null, 2));
-            showToast();
+            document.getElementById('raw-fields').value = JSON.stringify(fields, null, 2);
         }
+
+        const wrapper = document.getElementById('goal-wrapper');
+        const bar = document.getElementById('bar-fill-element');
+
+        function update() {
+            document.getElementById('prev-title').innerText = document.getElementById('in-title').value;
+            document.getElementById('target-text').innerText = document.getElementById('in-target').value;
+            document.getElementById('prev-title').style.color = document.getElementById('in-title-color').value;
+            document.getElementById('prev-amount-text').style.color = document.getElementById('in-amount-color').value;
+            bar.style.backgroundColor = document.getElementById('in-bar-color').value;
+            updateFieldsArea();
+        }
+
+        document.querySelectorAll('input').forEach(i => i.addEventListener('input', update));
+
+        function toggleManual() {
+            const area = document.getElementById('manual-area');
+            area.style.display = area.style.display === 'flex' ? 'none' : 'flex';
+            if(area.style.display === 'flex') area.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function simulate() {
+            const glow = document.getElementById('in-glow-color').value;
+            wrapper.style.borderColor = glow;
+            wrapper.style.boxShadow = `0 0 40px ${glow}`;
+            wrapper.classList.add('dono-alert');
+            bar.classList.add('pink-flash');
+            setTimeout(() => {
+                wrapper.classList.remove('dono-alert');
+                bar.classList.remove('pink-flash');
+                wrapper.style.boxShadow = "none";
+                wrapper.style.borderColor = "rgba(255, 255, 255, 0.1)";
+            }, 4000);
+        }
+
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+
+        function copyHTML() { navigator.clipboard.writeText(htmlCode); showToast(); }
+        function copyCSS() { navigator.clipboard.writeText(cssCode); showToast(); }
+        function copyJS() { navigator.clipboard.writeText(jsCode); showToast(); }
+        function copyFIELDS() { updateFieldsArea(); navigator.clipboard.writeText(document.getElementById('raw-fields').value); showToast(); }
 
         update();
     </script>
