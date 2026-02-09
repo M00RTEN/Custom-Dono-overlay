@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamElements Goal Tester</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-color: #1e1e1e;
+            --accent-color: #ff69b4;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 { margin-bottom: 30px; }
+
+        /* Preview Area */
+        #preview-container {
+            width: 100%;
+            height: 250px;
+            background-image: linear-gradient(45deg, #252525 25%, transparent 25%), 
+                              linear-gradient(-45deg, #252525 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #252525 75%), 
+                              linear-gradient(-45deg, transparent 75%, #252525 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 2px solid #333;
+        }
+
+        /* Styles fra din kode */
+        #goal-wrapper { 
+            position: relative; 
+            width: 600px; 
+            padding: 15px 25px; 
+            backdrop-filter: blur(8px); 
+            border: 2px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 15px; 
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .title { font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .amount-container { font-weight: 600; }
+        .divider { margin: 0 5px; opacity: 0.5; }
+        .currency { font-size: 12px; margin-left: 2px; opacity: 0.8; }
+        .bar-bg { width: 100%; height: 14px; background: rgba(0, 0, 0, 0.2); border-radius: 7px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 30%; transition: width 1s ease; }
+
+        .dono-alert { 
+            transform: scale(1.05) !important;
+        }
+
+        .pink-flash { animation: pink-blink-anim 0.5s infinite; }
+
+        @keyframes pink-blink-anim { 
+            0% { opacity: 1; } 
+            50% { opacity: 0.5; } 
+            100% { opacity: 1; } 
+        }
+
+        /* Editor Panel */
+        .editor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+            background: var(--panel-color);
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 14px; color: #aaa; }
+        input { padding: 8px; border-radius: 5px; border: 1px solid #444; background: #222; color: white; }
+        
+        .button-group {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-test { background: var(--accent-color); color: white; }
+        .btn-copy { background: #444; color: white; }
+        button:hover { opacity: 0.8; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+
+    </style>
+</head>
+<body>
+
+    <h1>Donation Goal Designer</h1>
+
+    <div id="preview-container">
+        <div id="goal-wrapper">
+            <div class="header-row">
+                <div class="title" id="prev-title">Donation Goal</div>
+                <div class="amount-container" id="prev-amount-text">
+                    <span id="current-text">300</span><span class="currency">kr</span>
+                    <span class="divider">/</span>
+                    <span id="target-text">1000</span><span class="currency">kr</span>
+                </div>
+            </div>
+            <div class="bar-bg">
+                <div id="bar-fill-element" class="bar-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-grid">
+        <div class="control-group">
+            <label>Mål Tittel</label>
+            <input type="text" id="in-title" value="Donation Goal">
+        </div>
+        <div class="control-group">
+            <label>Mål Beløp (kr)</label>
+            <input type="number" id="in-target" value="1000">
+        </div>
+        <div class="control-group">
+            <label>Tittel Farge</label>
+            <input type="color" id="in-color-title" value="#ffffff">
+        </div>
+        <div class="control-group">
+            <label>Beløp Farge</label>
+            <input type="color" id="in-color-amount" value="#ffffff">
+        </div>
+        <div class="control-group">
+            <label>Bar Farge</label>
+            <input type="color" id="in-color-bar" value="#ff69b4">
+        </div>
+        <div class="control-group">
+            <label>Blink Farge (Dono)</label>
+            <input type="color" id="in-color-blink" value="#ffb6c1">
+        </div>
+        <div class="control-group">
+            <label>Glow Farge</label>
+            <input type="color" id="in-color-glow" value="#ff69b4">
+        </div>
+        <div class="control-group">
+            <label>Bakgrunn Opacity</label>
+            <input type="range" id="in-opacity" min="0" max="1" step="0.01" value="0.15">
+        </div>
+
+        <div class="button-group">
+            <button class="btn-test" onclick="simulateDono()">Simuler Donasjon (50kr)</button>
+            <button class="btn-copy" onclick="copyCode('html')">Kopier HTML</button>
+            <button class="btn-copy" onclick="copyCode('css')">Kopier CSS</button>
+            <button class="btn-copy" onclick="copyCode('js')">Kopier JS</button>
+            <button class="btn-copy" onclick="copyCode('fields')">Kopier FIELDS</button>
+        </div>
+    </div>
+
+    <script>
+        const wrapper = document.getElementById('goal-wrapper');
+        const bar = document.getElementById('bar-fill-element');
+        let currentAmt = 300;
+
+        function updatePreview() {
+            const title = document.getElementById('in-title').value;
+            const target = document.getElementById('in-target').value;
+            const titleCol = document.getElementById('in-color-title').value;
+            const amtCol = document.getElementById('in-color-amount').value;
+            const barCol = document.getElementById('in-color-bar').value;
+            const opacity = document.getElementById('in-opacity').value;
+
+            // Oppdater tekster
+            document.getElementById('prev-title').innerText = title;
+            document.getElementById('target-text').innerText = target;
+            
+            // Oppdater stiler
+            document.getElementById('prev-title').style.color = titleCol;
+            document.getElementById('prev-amount-text').style.color = amtCol;
+            wrapper.style.backgroundColor = `rgba(255, 192, 203, ${opacity})`;
+            bar.style.backgroundColor = barCol;
+
+            // Oppdater bar prosent
+            const percent = Math.min((currentAmt / target) * 100, 100);
+            bar.style.width = percent + "%";
+        }
+
+        function simulateDono() {
+            const glowCol = document.getElementById('in-color-glow').value;
+            const blinkCol = document.getElementById('in-color-blink').value;
+            const barCol = document.getElementById('in-color-bar').value;
+            
+            currentAmt += 50;
+            updatePreview();
+
+            // Legg til effekter
+            wrapper.style.borderColor = glowCol;
+            wrapper.style.boxShadow = `0 0 40px ${glowCol}`;
+            wrapper.classList.add('dono-alert');
+            bar.classList.add('pink-flash');
+            
+            // Lag en midlertidig keyframe for blinkfargen
+            const styleSheet = document.createElement("style");
+            styleSheet.innerText = `@keyframes pink-blink-anim { 0% { background: ${barCol}; } 50% { background: ${blinkCol}; } 100% { background: ${barCol}; } }`;
+            document.head.appendChild(styleSheet);
+
+            setTimeout(() => {
+                wrapper.classList.remove('dono-alert');
+                bar.classList.remove('pink-flash');
+                wrapper.style.boxShadow = "none";
+                wrapper.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                document.head.removeChild(styleSheet);
+            }, 4000);
+        }
+
+        // Event listeners for alle inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+
+        function copyCode(type) {
+            let text = "";
+            if(type === 'html') text = `<div id="goal-wrapper" style="background: rgba(255, 192, 203, {{bg_opacity}});">...</div>`; // (Her kan du lime inn hele din HTML)
+            if(type === 'css') text = `/* Lim inn din CSS her */`;
+            
+            // Forenklet for demo - her kan du legge inn de faktiske strengene dine
+            alert("Koden for " + type.toUpperCase() + " er kopiert til utklippstavlen!");
+            // Navigator.clipboard.writeText(text);
+        }
+
+        updatePreview();
+    </script>
+</body>
+</html>
