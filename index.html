@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamElements Goal Designer</title>
+    <title>StreamElements Goal Designer - Ultimate</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap">
     <style>
         :root {
@@ -28,7 +28,7 @@
             border-left: 5px solid var(--accent-color);
             padding: 20px;
             border-radius: 10px;
-            max-width: 800px;
+            max-width: 850px;
             width: 100%;
             margin-bottom: 30px;
             font-size: 14px;
@@ -36,13 +36,11 @@
         }
 
         .guide-box h2 { margin-top: 0; color: var(--accent-color); font-size: 18px; }
-        .guide-box ol { padding-left: 20px; }
         .guide-box code { background: #000; padding: 2px 5px; border-radius: 4px; color: #ffb6c1; }
 
-        /* Preview Container med rutenett */
         #preview-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             height: 250px;
             background-image: 
                 linear-gradient(45deg, #181818 25%, transparent 25%), 
@@ -59,26 +57,25 @@
             overflow: hidden;
         }
 
-        /* Widget CSS */
+        /* Preview Widget */
         #goal-wrapper { 
             position: relative; 
             width: 600px; 
             padding: 15px 25px; 
-            backdrop-filter: blur(8px); 
-            border: 2px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 15px; 
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
         }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .title { font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
         .amount-container { font-weight: 600; }
         .divider { margin: 0 5px; opacity: 0.5; }
-        .currency { font-size: 12px; margin-left: 2px; opacity: 0.8; }
-        .bar-bg { width: 100%; height: 14px; background: rgba(0, 0, 0, 0.2); border-radius: 7px; overflow: hidden; }
-        .bar-fill { height: 100%; width: 40%; transition: width 1s ease; }
+        .unit { font-size: 12px; margin-left: 2px; opacity: 0.8; }
+        .bar-bg { width: 100%; position: relative; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1s ease; }
 
         .dono-alert { transform: scale(1.05) !important; }
-        .pink-flash { animation: pink-blink-anim 0.5s infinite; }
+        @keyframes blink-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .flashing { animation: blink-anim 0.5s infinite; }
 
         /* Editor Styles */
         .editor-panel {
@@ -86,207 +83,311 @@
             padding: 30px;
             border-radius: 20px;
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
             margin-bottom: 40px;
         }
 
         .control { display: flex; flex-direction: column; gap: 5px; }
-        input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; }
+        .control.full { grid-column: span 3; }
+        label { font-size: 12px; text-transform: uppercase; opacity: 0.7; font-weight: 600; }
+        input, select { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; }
         
         .button-area {
-            grid-column: 1 / -1;
+            grid-column: span 3;
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-top: 20px;
         }
 
-        button {
-            padding: 12px 18px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .btn-test { background: #ff69b4; color: white; }
+        button { padding: 12px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-test { background: var(--accent-color); color: white; }
         .btn-copy { background: #333; color: white; }
-        .btn-manual { background: #444; color: #fff; width: 100%; margin-top: 10px; }
+        .btn-copy:hover { background: #444; }
 
         .manual-section {
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             display: none;
             flex-direction: column;
             gap: 20px;
             background: #111;
             padding: 20px;
             border-radius: 15px;
-            border: 1px solid #333;
             margin-bottom: 40px;
         }
-
-        .code-box { display: flex; flex-direction: column; gap: 5px; }
-        .code-box label { font-size: 12px; color: #ff69b4; font-weight: bold; text-transform: uppercase; }
 
         textarea {
             background: #000;
             color: #0f0;
-            font-family: 'Courier New', monospace;
+            font-family: monospace;
             padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #222;
-            height: 120px;
-            resize: vertical;
+            height: 100px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .toast {
             position: fixed; bottom: 20px; background: #4CAF50; color: white;
-            padding: 10px 20px; border-radius: 5px; display: none; z-index: 100;
+            padding: 10px 20px; border-radius: 5px; display: none;
         }
     </style>
 </head>
 <body>
 
-    <h1>Donation Goal Designer</h1>
+    <h1>Goal Designer Pro</h1>
 
     <div class="guide-box">
-        <h2>Slik legger du det inn i StreamElements:</h2>
-        <ol>
-            <li>Trykk på <code>+</code> tegnet inne i overlayet ditt.</li>
-            <li>Velg <b>"Static/Custom"</b> og deretter <b>"Custom Widget"</b>.</li>
-            <li>Gå innpå <b>"Settings"</b> og velg <b>"Open Editor"</b>.</li>
-            <li>Bruk knappene under for å kopiere og lime inn koden i de riktige fanene (HTML, CSS, JS og FIELDS).</li>
-        </ol>
+        <h2>Slik bruker du editoren:</h2>
+        <p>Design målet ditt under. Når du er ferdig, kopierer du hver del (HTML, CSS, JS, FIELDS) inn i <b>Custom Widget</b> editoren i StreamElements.</p>
     </div>
 
     <div id="preview-container">
         <div id="goal-wrapper">
             <div class="header-row">
-                <div class="title" id="prev-title">Donation Goal</div>
+                <div class="title" id="prev-title">Goal</div>
                 <div class="amount-container" id="prev-amount-text">
-                    <span id="current-text">400</span><span class="currency">kr</span>
+                    <span id="current-text">0</span><span class="unit" id="prev-unit">kr</span>
                     <span class="divider">/</span>
-                    <span id="target-text">1000</span><span class="currency">kr</span>
+                    <span id="target-text">1000</span><span class="unit" id="prev-unit2">kr</span>
                 </div>
             </div>
-            <div class="bar-bg">
+            <div id="prev-bar-bg" class="bar-bg">
                 <div id="bar-fill-element" class="bar-fill"></div>
             </div>
         </div>
     </div>
 
     <div class="editor-panel">
-        <div class="control"><label>Mål Tittel</label><input type="text" id="in-title" value="Donation Goal"></div>
-        <div class="control"><label>Mål Beløp</label><input type="number" id="in-target" value="1000"></div>
+        <!-- Main Settings -->
+        <div class="control"><label>Mål Tittel</label><input type="text" id="in-title" value="Subscriber Goal"></div>
+        <div class="control"><label>Mål Type</label>
+            <select id="in-type">
+                <option value="subs">Subscribers</option>
+                <option value="tips">Tips (Penger)</option>
+            </select>
+        </div>
+        <div class="control"><label>Enhet (f.eks kr)</label><input type="text" id="in-unit" value=""></div>
+        
+        <div class="control"><label>Mål Beløp</label><input type="number" id="in-target" value="100"></div>
+        <div class="control"><label>Startbeløp (Nåværende)</label><input type="number" id="in-start" value="25"></div>
+        <div class="control"><label>Høyde på bar</label><input type="number" id="in-bar-height" value="14"></div>
+
+        <!-- Colors -->
+        <div class="control"><label>Boks Bakgrunn</label><input type="color" id="in-bg-color" value="#1a1a1a"></div>
+        <div class="control"><label>Kant Farge</label><input type="color" id="in-border-color" value="#333333"></div>
+        <div class="control"><label>Bar Farge</label><input type="color" id="in-bar-color" value="#ff69b4"></div>
+        
         <div class="control"><label>Tittel Farge</label><input type="color" id="in-title-color" value="#ffffff"></div>
         <div class="control"><label>Tall Farge</label><input type="color" id="in-amount-color" value="#ffffff"></div>
-        <div class="control"><label>Bar Farge</label><input type="color" id="in-bar-color" value="#ff69b4"></div>
-        <div class="control"><label>Blink Farge (Ved dono)</label><input type="color" id="in-blink-color" value="#ffb6c1"></div>
         <div class="control"><label>Glow Farge</label><input type="color" id="in-glow-color" value="#ff69b4"></div>
-        <div class="control"><label>Gjennomsiktighet (Bakgrunn)</label><input type="range" id="in-opacity" min="0" max="1" step="0.01" value="0.15"></div>
-        
+
+        <!-- Styling -->
+        <div class="control"><label>Runde Hjørner (Boks)</label><input type="range" id="in-radius-box" min="0" max="50" value="15"></div>
+        <div class="control"><label>Runde Hjørner (Bar)</label><input type="range" id="in-radius-bar" min="0" max="25" value="7"></div>
+        <div class="control"><label>Bakgrunn Synlighet</label><input type="range" id="in-opacity" min="0" max="1" step="0.1" value="0.8"></div>
+
         <div class="button-area">
-            <button class="btn-test" onclick="simulate()">Test Animasjon</button>
+            <button class="btn-test" onclick="simulate()">Test Event Animasjon</button>
             <button class="btn-copy" onclick="copyHTML()">Kopier HTML</button>
             <button class="btn-copy" onclick="copyCSS()">Kopier CSS</button>
             <button class="btn-copy" onclick="copyJS()">Kopier JS</button>
             <button class="btn-copy" onclick="copyFIELDS()">Kopier FIELDS</button>
-            <button class="btn-manual" onclick="toggleManual()">Vis / Kopier alt manuelt</button>
+            <button style="background:#555; color:white" onclick="toggleManual()">Vis råkode</button>
         </div>
     </div>
 
     <div id="manual-area" class="manual-section">
-        <h3>Manuelt kopi-område</h3>
-        <div class="code-box"><label>HTML</label><textarea id="raw-html" readonly onclick="this.select()"></textarea></div>
-        <div class="code-box"><label>CSS</label><textarea id="raw-css" readonly onclick="this.select()"></textarea></div>
-        <div class="code-box"><label>JavaScript</label><textarea id="raw-js" readonly onclick="this.select()"></textarea></div>
-        <div class="code-box"><label>Fields (JSON)</label><textarea id="raw-fields" readonly onclick="this.select()"></textarea></div>
+        <textarea id="raw-html" readonly></textarea>
+        <textarea id="raw-css" readonly></textarea>
+        <textarea id="raw-js" readonly></textarea>
+        <textarea id="raw-fields" readonly></textarea>
     </div>
 
-    <div id="toast" class="toast">Kopiert!</div>
+    <div id="toast" class="toast">Kopiert til utklippstavle!</div>
 
     <script>
-        // Funksjon for å hente nåværende verdier og generere koden dynamisk
-        function getDynamicHTML() {
-            return `<div id="goal-wrapper" style="background: rgba(255, 192, 203, {{bg_opacity}});">
+        function update() {
+            const wrap = document.getElementById('goal-wrapper');
+            const bar = document.getElementById('bar-fill-element');
+            const barBg = document.getElementById('prev-bar-bg');
+            
+            // Hent verdier
+            const title = document.getElementById('in-title').value;
+            const target = document.getElementById('in-target').value;
+            const start = document.getElementById('in-start').value;
+            const unit = document.getElementById('in-unit').value;
+            const opacity = document.getElementById('in-opacity').value;
+            const bgColor = hexToRgbA(document.getElementById('in-bg-color').value, opacity);
+
+            // Oppdater Preview
+            document.getElementById('prev-title').innerText = title;
+            document.getElementById('prev-title').style.color = document.getElementById('in-title-color').value;
+            document.getElementById('current-text').innerText = start;
+            document.getElementById('target-text').innerText = target;
+            document.getElementById('prev-unit').innerText = unit;
+            document.getElementById('prev-unit2').innerText = unit;
+            document.getElementById('prev-amount-text').style.color = document.getElementById('in-amount-color').value;
+
+            wrap.style.backgroundColor = bgColor;
+            wrap.style.borderColor = document.getElementById('in-border-color').value;
+            wrap.style.borderRadius = document.getElementById('in-radius-box').value + "px";
+            
+            bar.style.backgroundColor = document.getElementById('in-bar-color').value;
+            bar.style.borderRadius = document.getElementById('in-radius-bar').value + "px";
+            barBg.style.borderRadius = document.getElementById('in-radius-bar').value + "px";
+            barBg.style.height = document.getElementById('in-bar-height').value + "px";
+            
+            const perc = Math.min((start / target) * 100, 100);
+            bar.style.width = perc + "%";
+
+            // Generer koder for eksport
+            document.getElementById('raw-html').value = getHTML();
+            document.getElementById('raw-css').value = getCSS();
+            document.getElementById('raw-js').value = getJS();
+            document.getElementById('raw-fields').value = getFIELDS();
+        }
+
+        function hexToRgbA(hex, op){
+            var c;
+            if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+                c= hex.substring(1).split('');
+                if(c.length== 3) c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+                c= '0x'+c.join('');
+                return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+op+')';
+            }
+        }
+
+        function getHTML() {
+            return `<div id="goal-wrapper" style="background: {{bg_color}}; border: {{border_width}}px solid {{border_color}}; border-radius: {{container_radius}}px;">
     <div class="header-row">
         <div class="title" style="color: {{title_color}};">{{goal_title}}</div>
         <div class="amount-container" style="color: {{amount_color}};">
-            <span id="current-text">0</span><span class="currency">kr</span>
+            <span id="current-text">0</span><span class="unit">{{goal_unit}}</span>
             <span class="divider">/</span>
-            <span id="target-text">{{goal_amount}}</span><span class="currency">kr</span>
+            <span id="target-text">{{goal_amount}}</span><span class="unit">{{goal_unit}}</span>
         </div>
     </div>
-    <div class="bar-bg">
-        <div id="bar-fill-element" class="bar-fill" style="background: {{bar_color}};"></div>
+    <div class="bar-bg" style="height: {{bar_height}}px; border-radius: {{bar_radius}}px; background: {{bar_bg_color}};">
+        <div id="bar-fill-element" class="bar-fill" style="background: {{bar_color}}; border-radius: {{bar_radius}}px;"></div>
     </div>
 </div>`;
         }
 
-        function getDynamicCSS() {
-            return `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap');\n\n#goal-wrapper { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 600px; padding: 15px 25px; backdrop-filter: blur(8px); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 15px; font-family: 'Outfit', sans-serif; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }\n.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }\n.title { font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }\n.amount-container { font-weight: 600; }\n.divider { margin: 0 5px; opacity: 0.5; }\n.currency { font-size: 12px; margin-left: 2px; opacity: 0.8; }\n.bar-bg { width: 100%; height: 14px; background: rgba(0, 0, 0, 0.2); border-radius: 7px; overflow: hidden; }\n.bar-fill { height: 100%; width: 0%; transition: width 1s ease; }\n.dono-alert { border-color: {{glow_color}} !important; box-shadow: 0 0 40px {{glow_color}} !important; transform: translateX(-50%) scale(1.05) !important; }\n.pink-flash { animation: pink-blink-anim 0.5s infinite; }\n@keyframes pink-blink-anim { 0% { background: {{bar_color}}; } 50% { background: {{blink_color}}; } 100% { background: {{bar_color}}; } }`;
+        function getCSS() {
+            return `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap');
+#goal-wrapper { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 600px; padding: 15px 25px; backdrop-filter: blur(8px); font-family: 'Outfit', sans-serif; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; }
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.title { font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+.amount-container { font-weight: 600; }
+.divider { margin: 0 5px; opacity: 0.5; }
+.unit { font-size: 12px; margin-left: 2px; opacity: 0.8; }
+.bar-bg { width: 100%; position: relative; overflow: hidden; }
+.bar-fill { height: 100%; width: 0%; transition: width 1s ease; }
+.dono-alert { border-color: {{glow_color}} !important; box-shadow: 0 0 40px {{glow_color}} !important; transform: translateX(-50%) scale(1.05) !important; }
+.pink-flash { animation: blink-anim 0.5s infinite; }
+@keyframes blink-anim { 0% { background: {{bar_color}}; } 50% { background: {{blink_color}}; } 100% { background: {{bar_color}}; } }`;
         }
 
-        const jsCode = `let goalTarget = 0; \nlet currentTotal = 0;\n\nwindow.addEventListener('onWidgetLoad', function (obj) {\n    const fieldData = obj.detail.fieldData;\n    const sessionData = obj.detail.session.data;\n    goalTarget = fieldData.goal_amount || 1000;\n    if (sessionData['tips-session']) {\n        currentTotal = sessionData['tips-session']['amount'] || 0;\n    }\n    document.getElementById('target-text').innerText = goalTarget;\n    render(false);\n});\n\nwindow.addEventListener('onEventReceived', function (obj) {\n    if (obj.detail.listener === 'tip-latest') {\n        currentTotal += parseFloat(obj.detail.event.amount);\n        render(true);\n    }\n});\n\nfunction render(isDono) {\n    const percent = Math.min((currentTotal / goalTarget) * 100, 100);\n    const bar = document.getElementById('bar-fill-element');\n    const wrap = document.getElementById('goal-wrapper');\n    if (bar) bar.style.width = percent + "%";\n    document.getElementById('current-text').innerText = Math.floor(currentTotal);\n    if (isDono) {\n        wrap.classList.add('dono-alert'); \n        bar.classList.add('pink-flash');\n        setTimeout(() => { \n            wrap.classList.remove('dono-alert'); \n            bar.classList.remove('pink-flash'); \n        }, 4000);\n    }\n}`;
+        function getJS() {
+            return `let goalTarget = 0; let sessionTotal = 0; let startAmount = 0; let goalType = "tips";
+window.addEventListener('onWidgetLoad', function (obj) {
+    const fieldData = obj.detail.fieldData;
+    const sessionData = obj.detail.session.data;
+    goalTarget = fieldData.goal_amount || 1000;
+    startAmount = parseFloat(fieldData.current_amount) || 0; 
+    goalType = fieldData.goal_type || "tips";
+    if (goalType === "tips") {
+        if (sessionData['tips-session']) sessionTotal = sessionData['tips-session']['amount'] || 0;
+    } else {
+        if (sessionData['subscriber-session']) sessionTotal = sessionData['subscriber-session']['count'] || 0;
+    }
+    document.getElementById('target-text').innerText = goalTarget;
+    render(false);
+});
+window.addEventListener('onEventReceived', function (obj) {
+    const listener = obj.detail.listener;
+    if (goalType === "tips" && listener === 'tip-latest') {
+        sessionTotal += parseFloat(obj.detail.event.amount);
+        render(true);
+    } else if (goalType === "subs" && (listener === 'subscriber-latest' || listener === 'resub-latest')) {
+        sessionTotal += 1;
+        render(true);
+    }
+});
+function render(isAlert) {
+    const totalToDisplay = startAmount + sessionTotal;
+    const percent = Math.min((totalToDisplay / goalTarget) * 100, 100);
+    const bar = document.getElementById('bar-fill-element');
+    const wrap = document.getElementById('goal-wrapper');
+    if (bar) bar.style.width = percent + "%";
+    document.getElementById('current-text').innerText = Math.floor(totalToDisplay);
+    if (isAlert) {
+        wrap.classList.add('dono-alert'); bar.classList.add('pink-flash');
+        setTimeout(() => { wrap.classList.remove('dono-alert'); bar.classList.remove('pink-flash'); }, 4000);
+    }
+}`;
+        }
 
-        function update() {
-            const wrap = document.getElementById('goal-wrapper');
-            const opac = document.getElementById('in-opacity').value;
-            
-            // Oppdater UI
-            document.getElementById('prev-title').innerText = document.getElementById('in-title').value;
-            document.getElementById('target-text').innerText = document.getElementById('in-target').value;
-            document.getElementById('prev-title').style.color = document.getElementById('in-title-color').value;
-            document.getElementById('prev-amount-text').style.color = document.getElementById('in-amount-color').value;
-            document.getElementById('bar-fill-element').style.backgroundColor = document.getElementById('in-bar-color').value;
-            wrap.style.backgroundColor = `rgba(255, 192, 203, ${opac})`;
-
-            // Oppdater Manuelt Område
-            document.getElementById('raw-html').value = getDynamicHTML();
-            document.getElementById('raw-css').value = getDynamicCSS();
-            document.getElementById('raw-js').value = jsCode;
-            
+        function getFIELDS() {
             const fields = {
                 "goal_title": { "type": "text", "label": "Mål Tittel", "value": document.getElementById('in-title').value },
-                "goal_amount": { "type": "number", "label": "Mål Beløp (kr)", "value": parseInt(document.getElementById('in-target').value) },
-                "title_color": { "type": "colorpicker", "label": "Farge: Tittel", "value": document.getElementById('in-title-color').value },
-                "amount_color": { "type": "colorpicker", "label": "Farge: Kr-tall", "value": document.getElementById('in-amount-color').value },
-                "bar_color": { "type": "colorpicker", "label": "Farge: Stripe (Fast)", "value": document.getElementById('in-bar-color').value },
-                "blink_color": { "type": "colorpicker", "label": "Farge: Stripe (Blink)", "value": document.getElementById('in-blink-color').value },
-                "glow_color": { "type": "colorpicker", "label": "Farge: Lys rundt (Glow)", "value": document.getElementById('in-glow-color').value },
-                "bg_opacity": { "type": "slider", "label": "Bakgrunn Gjennomsiktighet", "value": parseFloat(opac), "min": 0, "max": 1, "step": 0.01 }
+                "goal_type": { "type": "dropdown", "label": "Mål Type", "value": document.getElementById('in-type').value, "options": { "tips": "Tips", "subs": "Subs" } },
+                "goal_unit": { "type": "text", "label": "Enhet", "value": document.getElementById('in-unit').value },
+                "goal_amount": { "type": "number", "label": "Mål", "value": parseInt(document.getElementById('in-target').value) },
+                "current_amount": { "type": "number", "label": "Startbeløp", "value": parseInt(document.getElementById('in-start').value) },
+                "bg_color": { "type": "colorpicker", "label": "Bakgrunn", "value": hexToRgbA(document.getElementById('in-bg-color').value, document.getElementById('in-opacity').value) },
+                "border_color": { "type": "colorpicker", "label": "Kant", "value": document.getElementById('in-border-color').value },
+                "border_width": { "type": "slider", "label": "Kant Tykkelse", "value": 2, "min": 0, "max": 10, "step": 1 },
+                "container_radius": { "type": "slider", "label": "Hjørner Boks", "value": parseInt(document.getElementById('in-radius-box').value), "min": 0, "max": 50, "step": 1 },
+                "title_color": { "type": "colorpicker", "label": "Tittel Farge", "value": document.getElementById('in-title-color').value },
+                "amount_color": { "type": "colorpicker", "label": "Tall Farge", "value": document.getElementById('in-amount-color').value },
+                "bar_color": { "type": "colorpicker", "label": "Bar Farge", "value": document.getElementById('in-bar-color').value },
+                "bar_bg_color": { "type": "colorpicker", "label": "Bar Bakgrunn", "value": "rgba(0,0,0,0.3)" },
+                "bar_height": { "type": "slider", "label": "Bar Høyde", "value": parseInt(document.getElementById('in-bar-height').value), "min": 5, "max": 40, "step": 1 },
+                "bar_radius": { "type": "slider", "label": "Hjørner Bar", "value": parseInt(document.getElementById('in-radius-bar').value), "min": 0, "max": 20, "step": 1 },
+                "blink_color": { "type": "colorpicker", "label": "Blink Farge", "value": "#ffffff" },
+                "glow_color": { "type": "colorpicker", "label": "Glow Farge", "value": document.getElementById('in-glow-color').value }
             };
-            document.getElementById('raw-fields').value = JSON.stringify(fields, null, 2);
+            return JSON.stringify(fields, null, 2);
         }
 
-        document.querySelectorAll('input').forEach(i => i.addEventListener('input', update));
-
-        function simulate() { 
-            const w = document.getElementById('goal-wrapper');
-            const g = document.getElementById('in-glow-color').value;
-            w.style.borderColor = g; 
-            w.style.boxShadow = `0 0 40px ${g}`;
-            w.classList.add('dono-alert');
-            setTimeout(() => { 
-                w.classList.remove('dono-alert'); 
-                w.style.boxShadow = "none"; 
-                w.style.borderColor = "rgba(255, 255, 255, 0.1)";
+        function simulate() {
+            const wrap = document.getElementById('goal-wrapper');
+            const bar = document.getElementById('bar-fill-element');
+            const glow = document.getElementById('in-glow-color').value;
+            
+            wrap.classList.add('dono-alert');
+            wrap.style.boxShadow = `0 0 40px ${glow}`;
+            bar.classList.add('flashing');
+            
+            setTimeout(() => {
+                wrap.classList.remove('dono-alert');
+                wrap.style.boxShadow = "none";
+                bar.classList.remove('flashing');
             }, 4000);
         }
 
-        function toggleManual() { const a = document.getElementById('manual-area'); a.style.display = a.style.display === 'flex' ? 'none' : 'flex'; }
-        function showToast() { const t = document.getElementById('toast'); t.style.display = 'block'; setTimeout(() => t.style.display='none', 2000); }
-        
-        function copyHTML() { navigator.clipboard.writeText(getDynamicHTML()); showToast(); }
-        function copyCSS() { navigator.clipboard.writeText(getDynamicCSS()); showToast(); }
-        function copyJS() { navigator.clipboard.writeText(jsCode); showToast(); }
-        function copyFIELDS() { update(); navigator.clipboard.writeText(document.getElementById('raw-fields').value); showToast(); }
+        function toggleManual() {
+            const m = document.getElementById('manual-area');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
 
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+
+        function copyHTML() { navigator.clipboard.writeText(getHTML()); showToast(); }
+        function copyCSS() { navigator.clipboard.writeText(getCSS()); showToast(); }
+        function copyJS() { navigator.clipboard.writeText(getJS()); showToast(); }
+        function copyFIELDS() { navigator.clipboard.writeText(getFIELDS()); showToast(); }
+
+        document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', update));
         update();
     </script>
 </body>
