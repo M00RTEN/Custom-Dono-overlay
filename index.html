@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamElements Custom goal</title>
+    <title>StreamElements Custom Goal Designer</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap">
     <style>
         :root {
@@ -32,21 +32,13 @@
             width: 100%;
             margin-bottom: 30px;
             font-size: 14px;
-            line-height: 1.6;
         }
-
-        .guide-box h2 { margin-top: 0; color: var(--accent-color); font-size: 18px; }
-        .guide-box code { background: #000; padding: 2px 5px; border-radius: 4px; color: #ffb6c1; }
 
         #preview-container {
             width: 100%;
             max-width: 850px;
             height: 250px;
-            background-image: 
-                linear-gradient(45deg, #181818 25%, transparent 25%), 
-                linear-gradient(-45deg, #181818 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #181818 75%), 
-                linear-gradient(-45deg, transparent 75%, #181818 75%);
+            background-image: linear-gradient(45deg, #181818 25%, transparent 25%), linear-gradient(-45deg, #181818 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #181818 75%), linear-gradient(-45deg, transparent 75%, #181818 75%);
             background-size: 20px 20px;
             display: flex;
             align-items: center;
@@ -54,7 +46,6 @@
             border-radius: 15px;
             margin-bottom: 30px;
             border: 2px solid #333;
-            overflow: hidden;
         }
 
         /* Preview Widget */
@@ -64,13 +55,14 @@
             padding: 15px 25px; 
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-sizing: border-box;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .title { font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
         .amount-container { font-weight: 600; }
         .divider { margin: 0 5px; opacity: 0.5; }
         .unit { font-size: 12px; margin-left: 2px; opacity: 0.8; }
-        .bar-bg { width: 100%; position: relative; overflow: hidden; }
+        .bar-bg { width: 100%; position: relative; overflow: hidden; background: rgba(0,0,0,0.2); }
         .bar-fill { height: 100%; width: 0%; transition: width 1s ease; }
 
         .dono-alert { transform: scale(1.05) !important; }
@@ -91,8 +83,7 @@
         }
 
         .control { display: flex; flex-direction: column; gap: 5px; }
-        .control.full { grid-column: span 3; }
-        label { font-size: 12px; text-transform: uppercase; opacity: 0.7; font-weight: 600; }
+        label { font-size: 11px; text-transform: uppercase; opacity: 0.7; font-weight: 600; }
         input, select { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; }
         
         .button-area {
@@ -106,53 +97,36 @@
         button { padding: 12px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-test { background: var(--accent-color); color: white; }
         .btn-copy { background: #333; color: white; }
-        .btn-copy:hover { background: #444; }
 
         .manual-section {
             width: 100%;
             max-width: 850px;
             display: none;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
             background: #111;
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 40px;
         }
 
-        textarea {
-            background: #000;
-            color: #0f0;
-            font-family: monospace;
-            padding: 15px;
-            height: 100px;
-            width: 100%;
-            box-sizing: border-box;
-        }
+        textarea { background: #000; color: #0f0; font-family: monospace; padding: 10px; height: 80px; width: 100%; box-sizing: border-box; font-size: 11px; }
 
-        .toast {
-            position: fixed; bottom: 20px; background: #4CAF50; color: white;
-            padding: 10px 20px; border-radius: 5px; display: none;
-        }
+        .toast { position: fixed; bottom: 20px; background: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; display: none; }
     </style>
 </head>
 <body>
 
-    <h1>Goal custom</h1>
-
-    <div class="guide-box">
-        <h2>Slik bruker du editoren:</h2>
-        <p>Design målet ditt under. Når du er ferdig, kopierer du hver del (HTML, CSS, JS, FIELDS) inn i <b>Custom Widget</b> editoren i StreamElements.</p>
-    </div>
+    <h1>Goal Designer Pro</h1>
 
     <div id="preview-container">
         <div id="goal-wrapper">
             <div class="header-row">
-                <div class="title" id="prev-title">Goal</div>
+                <div class="title" id="prev-title">Custom Sub Goal</div>
                 <div class="amount-container" id="prev-amount-text">
-                    <span id="current-text">0</span><span class="unit" id="prev-unit">kr</span>
+                    <span id="current-text">0</span><span class="unit" id="prev-unit"></span>
                     <span class="divider">/</span>
-                    <span id="target-text">1000</span><span class="unit" id="prev-unit2">kr</span>
+                    <span id="target-text">100</span><span class="unit" id="prev-unit2"></span>
                 </div>
             </div>
             <div id="prev-bar-bg" class="bar-bg">
@@ -162,21 +136,19 @@
     </div>
 
     <div class="editor-panel">
-        <!-- Main Settings -->
-        <div class="control"><label>Mål Tittel</label><input type="text" id="in-title" value="Subscriber Goal"></div>
         <div class="control"><label>Mål Type</label>
-            <select id="in-type">
-                <option value="subs">Subscribers</option>
-                <option value="tips">Tips (Penger)</option>
+            <select id="in-type" onchange="handleTypeChange()">
+                <option value="subs">Custom Sub Goal</option>
+                <option value="tips">Custom Dono Goal</option>
             </select>
         </div>
+        <div class="control"><label>Mål Tittel</label><input type="text" id="in-title" value="Custom Sub Goal"></div>
         <div class="control"><label>Enhet (f.eks kr)</label><input type="text" id="in-unit" value=""></div>
         
         <div class="control"><label>Mål Beløp</label><input type="number" id="in-target" value="100"></div>
-        <div class="control"><label>Startbeløp (Nåværende)</label><input type="number" id="in-start" value="25"></div>
+        <div class="control"><label>Startbeløp (Nå)</label><input type="number" id="in-start" value="20"></div>
         <div class="control"><label>Høyde på bar</label><input type="number" id="in-bar-height" value="14"></div>
 
-        <!-- Colors -->
         <div class="control"><label>Boks Bakgrunn</label><input type="color" id="in-bg-color" value="#1a1a1a"></div>
         <div class="control"><label>Kant Farge</label><input type="color" id="in-border-color" value="#333333"></div>
         <div class="control"><label>Bar Farge</label><input type="color" id="in-bar-color" value="#ff69b4"></div>
@@ -185,37 +157,49 @@
         <div class="control"><label>Tall Farge</label><input type="color" id="in-amount-color" value="#ffffff"></div>
         <div class="control"><label>Glow Farge</label><input type="color" id="in-glow-color" value="#ff69b4"></div>
 
-        <!-- Styling -->
-        <div class="control"><label>Runde Hjørner (Boks)</label><input type="range" id="in-radius-box" min="0" max="50" value="15"></div>
-        <div class="control"><label>Runde Hjørner (Bar)</label><input type="range" id="in-radius-bar" min="0" max="25" value="7"></div>
-        <div class="control"><label>Bakgrunn Synlighet</label><input type="range" id="in-opacity" min="0" max="1" step="0.1" value="0.8"></div>
+        <div class="control"><label>Hjørner Boks</label><input type="range" id="in-radius-box" min="0" max="50" value="15"></div>
+        <div class="control"><label>Hjørner Bar</label><input type="range" id="in-radius-bar" min="0" max="25" value="7"></div>
+        <div class="control"><label>Opacity</label><input type="range" id="in-opacity" min="0" max="1" step="0.1" value="0.8"></div>
 
         <div class="button-area">
-            <button class="btn-test" onclick="simulate()">Test Event Animasjon</button>
+            <button class="btn-test" onclick="simulate()">Test Animasjon</button>
             <button class="btn-copy" onclick="copyHTML()">Kopier HTML</button>
             <button class="btn-copy" onclick="copyCSS()">Kopier CSS</button>
             <button class="btn-copy" onclick="copyJS()">Kopier JS</button>
             <button class="btn-copy" onclick="copyFIELDS()">Kopier FIELDS</button>
-            <button style="background:#555; color:white" onclick="toggleManual()">Vis råkode</button>
+            <button style="background:#555; color:white" onclick="toggleManual()">Se koder</button>
         </div>
     </div>
 
     <div id="manual-area" class="manual-section">
-        <textarea id="raw-html" readonly></textarea>
-        <textarea id="raw-css" readonly></textarea>
-        <textarea id="raw-js" readonly></textarea>
-        <textarea id="raw-fields" readonly></textarea>
+        <label>HTML</label><textarea id="raw-html" readonly></textarea>
+        <label>CSS</label><textarea id="raw-css" readonly></textarea>
+        <label>JS</label><textarea id="raw-js" readonly></textarea>
+        <label>FIELDS (JSON)</label><textarea id="raw-fields" readonly></textarea>
     </div>
 
-    <div id="toast" class="toast">Kopiert til utklippstavle!</div>
+    <div id="toast" class="toast">Kopiert!</div>
 
     <script>
+        function handleTypeChange() {
+            const type = document.getElementById('in-type').value;
+            if (type === 'subs') {
+                document.getElementById('in-title').value = "Custom Sub Goal";
+                document.getElementById('in-unit').value = "";
+                document.getElementById('in-target').value = 100;
+            } else {
+                document.getElementById('in-title').value = "Custom Dono Goal";
+                document.getElementById('in-unit').value = "kr";
+                document.getElementById('in-target').value = 1000;
+            }
+            update();
+        }
+
         function update() {
             const wrap = document.getElementById('goal-wrapper');
             const bar = document.getElementById('bar-fill-element');
             const barBg = document.getElementById('prev-bar-bg');
             
-            // Hent verdier
             const title = document.getElementById('in-title').value;
             const target = document.getElementById('in-target').value;
             const start = document.getElementById('in-start').value;
@@ -223,7 +207,6 @@
             const opacity = document.getElementById('in-opacity').value;
             const bgColor = hexToRgbA(document.getElementById('in-bg-color').value, opacity);
 
-            // Oppdater Preview
             document.getElementById('prev-title').innerText = title;
             document.getElementById('prev-title').style.color = document.getElementById('in-title-color').value;
             document.getElementById('current-text').innerText = start;
@@ -235,7 +218,6 @@
             wrap.style.backgroundColor = bgColor;
             wrap.style.borderColor = document.getElementById('in-border-color').value;
             wrap.style.borderRadius = document.getElementById('in-radius-box').value + "px";
-            
             bar.style.backgroundColor = document.getElementById('in-bar-color').value;
             bar.style.borderRadius = document.getElementById('in-radius-bar').value + "px";
             barBg.style.borderRadius = document.getElementById('in-radius-bar').value + "px";
@@ -244,7 +226,6 @@
             const perc = Math.min((start / target) * 100, 100);
             bar.style.width = perc + "%";
 
-            // Generer koder for eksport
             document.getElementById('raw-html').value = getHTML();
             document.getElementById('raw-css').value = getCSS();
             document.getElementById('raw-js').value = getJS();
@@ -359,11 +340,9 @@ function render(isAlert) {
             const wrap = document.getElementById('goal-wrapper');
             const bar = document.getElementById('bar-fill-element');
             const glow = document.getElementById('in-glow-color').value;
-            
             wrap.classList.add('dono-alert');
             wrap.style.boxShadow = `0 0 40px ${glow}`;
             bar.classList.add('flashing');
-            
             setTimeout(() => {
                 wrap.classList.remove('dono-alert');
                 wrap.style.boxShadow = "none";
